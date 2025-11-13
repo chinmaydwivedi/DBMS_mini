@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Heart, ShoppingCart } from "lucide-react";
+import { Star, Heart, ShoppingCart, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cartAPI, wishlistAPI } from "@/lib/api";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   id: number;
@@ -18,6 +19,8 @@ interface ProductCardProps {
   inStock: boolean;
 }
 
+const PLACEHOLDER_IMAGE = "https://via.placeholder.com/400x400.png?text=No+Image";
+
 export const ProductCard = ({
   id,
   name,
@@ -31,40 +34,56 @@ export const ProductCard = ({
   inStock,
 }: ProductCardProps) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isUpdatingWishlist, setIsUpdatingWishlist] = useState(false);
   const userId = 1; // In real app, get from auth context
 
   const handleAddToCart = async () => {
+    setIsAddingToCart(true);
     try {
       await cartAPI.add(userId, { product_id: id, quantity: 1 });
-      alert('Product added to cart!');
+      toast.success("Product added to cart!");
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Failed to add to cart');
+      toast.error("Failed to add to cart");
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
   const handleWishlist = async () => {
+    setIsUpdatingWishlist(true);
     try {
       if (isWishlisted) {
         await wishlistAPI.remove(userId, id);
         setIsWishlisted(false);
+        toast.info("Removed from wishlist");
       } else {
         await wishlistAPI.add(userId, { product_id: id });
         setIsWishlisted(true);
+        toast.success("Added to wishlist!");
       }
     } catch (error) {
       console.error('Error updating wishlist:', error);
+      toast.error("Failed to update wishlist");
+    } finally {
+      setIsUpdatingWishlist(false);
     }
   };
+
+  const imageUrl = image || PLACEHOLDER_IMAGE;
 
   return (
     <div className="group relative bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-200">
       <Link to={`/product/${id}`}>
         <div className="relative overflow-hidden aspect-square bg-gray-100">
           <img
-            src={image}
+            src={imageUrl}
             alt={name}
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.currentTarget.src = PLACEHOLDER_IMAGE;
+            }}
           />
           {discount > 0 && (
             <Badge className="absolute top-3 left-3 bg-accent text-white">
@@ -82,13 +101,18 @@ export const ProductCard = ({
       <div className="p-4 space-y-3">
         <button
           onClick={handleWishlist}
-          className="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all z-10 shadow-md"
+          disabled={isUpdatingWishlist}
+          className="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all z-10 shadow-md disabled:opacity-50 disabled:pointer-events-none"
         >
-          <Heart
-            className={`h-4 w-4 transition-all ${
-              isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"
-            }`}
-          />
+          {isUpdatingWishlist ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Heart
+              className={`h-4 w-4 transition-all ${
+                isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"
+              }`}
+            />
+          )}
         </button>
 
         <div>
@@ -117,14 +141,17 @@ export const ProductCard = ({
 
         <Button 
           className="w-full gap-2 bg-primary text-white hover:bg-primary/90" 
-          disabled={!inStock}
+          disabled={!inStock || isAddingToCart}
           onClick={handleAddToCart}
         >
-          <ShoppingCart className="h-4 w-4" />
-          Add to Cart
+          {isAddingToCart ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ShoppingCart className="h-4 w-4" />
+          )}
+          {isAddingToCart ? "Adding..." : "Add to Cart"}
         </Button>
       </div>
     </div>
   );
 };
-

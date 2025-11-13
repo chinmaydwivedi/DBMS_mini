@@ -51,29 +51,31 @@ END //
 DELIMITER ;
 
 -- ============================================
--- Trigger 3: Update product stock after order placement
+-- Trigger 3: Update product stock after order placement (REMOVED)
+-- This logic has been moved into the `place_order` stored procedure 
+-- to avoid "Can't update table 'products' in stored function/trigger" errors.
 -- ============================================
 
-DELIMITER //
-
-DROP TRIGGER IF EXISTS after_order_item_insert //
-
-CREATE TRIGGER after_order_item_insert
-AFTER INSERT ON order_items
-FOR EACH ROW
-BEGIN
-    UPDATE products 
-    SET stock_quantity = stock_quantity - NEW.quantity,
-        total_sales = total_sales + NEW.quantity
-    WHERE product_id = NEW.product_id;
-    
-    -- Update product status if out of stock
-    UPDATE products 
-    SET product_status = 'OutOfStock'
-    WHERE product_id = NEW.product_id AND stock_quantity <= 0;
-END //
-
-DELIMITER ;
+-- DELIMITER //
+-- 
+-- DROP TRIGGER IF EXISTS after_order_item_insert //
+-- 
+-- CREATE TRIGGER after_order_item_insert
+-- AFTER INSERT ON order_items
+-- FOR EACH ROW
+-- BEGIN
+--     UPDATE products 
+--     SET stock_quantity = stock_quantity - NEW.quantity,
+--         total_sales = total_sales + NEW.quantity
+--     WHERE product_id = NEW.product_id;
+--     
+--     -- Update product status if out of stock
+--     UPDATE products 
+--     SET product_status = 'OutOfStock'
+--     WHERE product_id = NEW.product_id AND stock_quantity <= 0;
+-- END //
+-- 
+-- DELIMITER ;
 
 -- ============================================
 -- Trigger 4: Update seller statistics after new product addition

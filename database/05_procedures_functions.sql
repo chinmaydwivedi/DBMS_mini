@@ -30,6 +30,24 @@ BEGIN
     DECLARE v_order_id BIGINT;
     DECLARE v_membership_id BIGINT;
     
+    -- Cursor variables
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE c_product_id BIGINT;
+    DECLARE c_seller_id BIGINT;
+    DECLARE c_product_name VARCHAR(500);
+    DECLARE c_quantity INT;
+    DECLARE c_price_at_addition DECIMAL(12, 2);
+
+    -- Declare cursor for cart items
+    DECLARE cart_cursor CURSOR FOR 
+        SELECT p.product_id, p.seller_id, p.product_name, ci.quantity, ci.price_at_addition
+        FROM cart_items ci
+        JOIN products p ON ci.product_id = p.product_id
+        WHERE ci.cart_id = v_cart_id;
+
+    -- Declare continue handler for cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
     -- Get cart ID
     SELECT cart_id INTO v_cart_id FROM cart WHERE user_id = p_user_id;
     
@@ -83,13 +101,34 @@ BEGIN
     
     SET v_order_id = LAST_INSERT_ID();
     
-    -- Insert order items from cart
-    INSERT INTO order_items (order_id, product_id, seller_id, product_name, quantity, unit_price, total_price)
-    SELECT v_order_id, p.product_id, p.seller_id, p.product_name, ci.quantity, ci.price_at_addition, 
-           ci.quantity * ci.price_at_addition
-    FROM cart_items ci
-    JOIN products p ON ci.product_id = p.product_id
-    WHERE ci.cart_id = v_cart_id;
+    -- === START: Process cart items, insert into order_items, and update stock ===
+    OPEN cart_cursor;
+
+    read_loop: LOOP
+        FETCH cart_cursor INTO c_product_id, c_seller_id, c_product_name, c_quantity, c_price_at_addition;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Insert into order_items
+        INSERT INTO order_items (order_id, product_id, seller_id, product_name, quantity, unit_price, total_price)
+        VALUES (v_order_id, c_product_id, c_seller_id, c_product_name, c_quantity, c_price_at_addition, c_quantity * c_price_at_addition);
+
+        -- Update product stock
+        UPDATE products 
+        SET stock_quantity = stock_quantity - c_quantity,
+            total_sales = total_sales + c_quantity
+        WHERE product_id = c_product_id;
+
+        -- Update product status if out of stock
+        UPDATE products 
+        SET product_status = 'OutOfStock'
+        WHERE product_id = c_product_id AND stock_quantity <= 0;
+
+    END LOOP;
+
+    CLOSE cart_cursor;
+    -- === END: Processing logic ===
     
     -- Clear cart
     DELETE FROM cart_items WHERE cart_id = v_cart_id;
