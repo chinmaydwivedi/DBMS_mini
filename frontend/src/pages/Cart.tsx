@@ -4,11 +4,12 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { cartAPI, couponsAPI } from "@/lib/api";
 
 const Cart = () => {
   const userId = 1;
+  const navigate = useNavigate();
   const [cart, setCart] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState("");
@@ -171,7 +172,11 @@ const Cart = () => {
                     Apply Coupon
                   </Button>
                 </div>
-                <Button className="w-full bg-primary text-white hover:bg-primary/90" size="lg">
+                <Button 
+                  className="w-full bg-primary text-white hover:bg-primary/90" 
+                  size="lg"
+                  onClick={() => navigate('/checkout')}
+                >
                   Proceed to Checkout
                 </Button>
               </div>

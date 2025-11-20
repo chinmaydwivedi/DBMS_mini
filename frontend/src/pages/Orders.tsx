@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ordersAPI } from "@/lib/api";
 import { Link } from "react-router-dom";
+import { Package, Truck, MapPin, Calendar } from "lucide-react";
 
 const Orders = () => {
   const userId = 1;
@@ -37,6 +38,21 @@ const Orders = () => {
         return "bg-yellow-100 text-yellow-700";
       default:
         return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const getDeliveryStatusColor = (status: string) => {
+    switch (status) {
+      case "Delivered":
+        return "text-green-600";
+      case "OutForDelivery":
+        return "text-blue-600";
+      case "InTransit":
+        return "text-purple-600";
+      case "Shipped":
+        return "text-indigo-600";
+      default:
+        return "text-gray-600";
     }
   };
 
@@ -92,22 +108,75 @@ const Orders = () => {
                     <p className="text-sm text-gray-600">
                       Placed on {new Date(order.created_at).toLocaleDateString()}
                     </p>
+                    <p className="text-sm text-gray-600">
+                      {order.item_count} {order.item_count === 1 ? 'item' : 'items'}
+                    </p>
                   </div>
                   <Badge className={getStatusColor(order.order_status)}>
                     {order.order_status}
                   </Badge>
                 </div>
+
+                {/* Delivery Tracking */}
+                {order.delivery_status && (
+                  <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Truck className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-semibold text-blue-900">Delivery Tracking</h4>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        <span className="text-gray-600">Status:</span>
+                        <span className={`font-medium ${getDeliveryStatusColor(order.delivery_status)}`}>
+                          {order.delivery_status.replace(/([A-Z])/g, ' $1').trim()}
+                        </span>
+                      </div>
+                      {order.tracking_number && (
+                        <div className="flex items-center gap-2">
+                          <Package className="w-4 h-4 text-gray-500" />
+                          <span className="text-gray-600">Tracking:</span>
+                          <span className="font-medium text-gray-800">{order.tracking_number}</span>
+                        </div>
+                      )}
+                      {order.estimated_delivery_date && (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-gray-500" />
+                          <span className="text-gray-600">Estimated Delivery:</span>
+                          <span className="font-medium text-gray-800">
+                            {new Date(order.estimated_delivery_date).toLocaleDateString()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-2 mb-4">
                   {order.items?.map((item: any) => (
-                    <div key={item.order_item_id} className="flex justify-between">
-                      <span>{item.product_name} x {item.quantity}</span>
-                      <span>₹{item.total_price.toLocaleString()}</span>
+                    <div key={item.order_item_id} className="flex items-center gap-4">
+                      <img 
+                        src={item.image} 
+                        alt={item.product_name}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                      <div className="flex-grow flex justify-between">
+                        <span className="text-gray-700">{item.product_name} x {item.quantity}</span>
+                        <span className="font-medium">₹{item.total_price.toLocaleString()}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
                 <div className="flex justify-between items-center border-t border-gray-200 pt-4">
                   <span className="font-bold">Total: ₹{order.total_amount.toLocaleString()}</span>
-                  <Button variant="outline">View Details</Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">View Details</Button>
+                    {order.order_status === 'Delivered' && (
+                      <Link to="/returns">
+                        <Button variant="outline" size="sm">Return Items</Button>
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

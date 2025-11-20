@@ -224,6 +224,62 @@ router.get('/bestsellers', async (req, res) => {
   }
 });
 
+// Get top selling products using stored procedure
+router.get('/top-selling', async (req, res) => {
+  try {
+    const { limit = 10, category_id = null } = req.query;
+
+    const [result] = await db.execute(
+      'CALL get_top_selling_products(?, ?)',
+      [parseInt(limit), category_id]
+    );
+
+    if (result[0]) {
+      const products = result[0].map(product => ({
+        ...product,
+        discount: product.discount_percentage || (product.original_price > product.selling_price
+          ? Math.round(((product.original_price - product.selling_price) / product.original_price) * 100)
+          : 0),
+        inStock: product.stock_quantity > 0,
+        image: product.product_image || `https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&auto=format`
+      }));
+
+      res.json(products);
+    } else {
+      res.json([]);
+    }
+  } catch (error) {
+    console.error('Error fetching top selling products:', error);
+    res.status(500).json({ error: 'Failed to fetch top selling products', message: error.message });
+  }
+});
+
+// Update product price using stored procedure
+router.put('/:id/price', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { new_price } = req.body;
+
+    if (!new_price || new_price <= 0) {
+      return res.status(400).json({ error: 'Valid new_price is required' });
+    }
+
+    const [result] = await db.execute(
+      'CALL update_product_price(?, ?)',
+      [id, new_price]
+    );
+
+    if (result[0] && result[0].length > 0) {
+      res.json({ message: result[0][0].message });
+    } else {
+      res.json({ message: 'Price updated successfully' });
+    }
+  } catch (error) {
+    console.error('Error updating price:', error);
+    res.status(500).json({ error: 'Failed to update price', message: error.message });
+  }
+});
+
 // Get single product by ID
 router.get('/:id', async (req, res) => {
   try {

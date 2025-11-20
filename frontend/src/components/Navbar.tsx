@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShoppingCart, Heart, User, Search, Menu } from "lucide-react";
+import { ShoppingCart, Heart, User, Search, Menu, Package, RotateCcw, MessageSquare, Crown, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -8,6 +8,7 @@ import { cartAPI } from "@/lib/api";
 
 export const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const userId = 1; // In real app, get from auth context
 
   useEffect(() => {
@@ -50,6 +51,11 @@ export const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link to="/membership">
+              <Button variant="ghost" size="icon" className="relative">
+                <Crown className="h-5 w-5 text-purple-600" />
+              </Button>
+            </Link>
             <Link to="/wishlist">
               <Button variant="ghost" size="icon" className="relative">
                 <Heart className="h-5 w-5" />
@@ -65,14 +71,49 @@ export const Navbar = () => {
                 )}
               </Button>
             </Link>
-            <Link to="/orders">
-              <Button variant="ghost" size="icon">
+            <div className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              >
                 <User className="h-5 w-5" />
               </Button>
-            </Link>
-            <Button size="sm" className="hidden lg:inline-flex bg-primary text-white">
-              Login
-            </Button>
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      My Profile
+                    </div>
+                  </Link>
+                  <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4" />
+                      My Orders
+                    </div>
+                  </Link>
+                  <Link to="/returns" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div className="flex items-center gap-2">
+                      <RotateCcw className="h-4 w-4" />
+                      Returns
+                    </div>
+                  </Link>
+                  <Link to="/reviews" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Write Reviews
+                    </div>
+                  </Link>
+                  <Link to="/support" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Support
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

@@ -51,7 +51,39 @@ END //
 DELIMITER ;
 
 -- ============================================
--- Trigger 3: Update product stock after order placement (REMOVED)
+-- Trigger 3: Update product rating after review status change
+-- ============================================
+
+DELIMITER //
+
+DROP TRIGGER IF EXISTS after_review_update //
+
+CREATE TRIGGER after_review_update
+AFTER UPDATE ON reviews
+FOR EACH ROW
+BEGIN
+    -- Only update if review_status changed to or from 'Approved'
+    IF (OLD.review_status != 'Approved' AND NEW.review_status = 'Approved') OR 
+       (OLD.review_status = 'Approved' AND NEW.review_status != 'Approved') THEN
+        UPDATE products 
+        SET average_rating = (
+            SELECT COALESCE(AVG(rating), 0)
+            FROM reviews 
+            WHERE product_id = NEW.product_id AND review_status = 'Approved'
+        ),
+        total_reviews = (
+            SELECT COUNT(*) 
+            FROM reviews 
+            WHERE product_id = NEW.product_id AND review_status = 'Approved'
+        )
+        WHERE product_id = NEW.product_id;
+    END IF;
+END //
+
+DELIMITER ;
+
+-- ============================================
+-- Trigger 4: Update product stock after order placement (REMOVED)
 -- This logic has been moved into the `place_order` stored procedure 
 -- to avoid "Can't update table 'products' in stored function/trigger" errors.
 -- ============================================

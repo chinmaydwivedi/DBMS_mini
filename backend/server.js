@@ -1,6 +1,10 @@
+import dotenv from 'dotenv';
+
+// IMPORTANT: Load environment variables FIRST before importing db.js
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import db from './db.js';
 import productRoutes from './routes/products.js';
 import categoryRoutes from './routes/categories.js';
@@ -11,8 +15,12 @@ import cartRoutes from './routes/cart.js';
 import wishlistRoutes from './routes/wishlist.js';
 import reviewRoutes from './routes/reviews.js';
 import couponRoutes from './routes/coupons.js';
-
-dotenv.config();
+import sellerRoutes from './routes/sellers.js';
+import returnRoutes from './routes/returns.js';
+import membershipRoutes from './routes/membership.js';
+import supportRoutes from './routes/support.js';
+import addressRoutes from './routes/addresses.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,6 +40,12 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/sellers', sellerRoutes);
+app.use('/api/returns', returnRoutes);
+app.use('/api/membership', membershipRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/addresses', addressRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

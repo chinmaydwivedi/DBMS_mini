@@ -76,6 +76,7 @@ VALUES
 (3, 3, 'Microwave Oven 20L', 'LG', 'LG-MO-20', 'Compact microwave oven', 8999.00, 6999.00, 22.22, 35, 'Active', FALSE, 4.5, TRUE),
 (4, 4, 'Database Management Systems Book', 'McGraw Hill', 'MGH-DBMS-001', 'Comprehensive DBMS textbook', 899.00, 699.00, 22.25, 200, 'Active', FALSE, 4.7, TRUE),
 (4, 4, 'Data Structures and Algorithms', 'Pearson', 'PRS-DSA-002', 'Complete guide to DSA', 1299.00, 999.00, 23.09, 150, 'Active', FALSE, 4.8, TRUE);
+(4, 4, 'Data Algorithms', 'Pearsons', 'PRS-DSA-002', 'Complete guide to DSA', 1299.00, 999.00, 23.09, 150, 'Active', FALSE, 4.8, TRUE);
 
 -- Insert product images
 INSERT INTO product_images (product_id, image_url, image_type, display_order)
