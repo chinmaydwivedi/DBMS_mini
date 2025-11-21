@@ -3,7 +3,199 @@
 > vite
 
 
-  VITE v5.4.21  ready in 293 ms
+  VITE v5.4.21  ready in 440 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: use --host to expose
+12:34:38 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:38 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:38 AM [vite] http proxy error: /api/orders/user/1?status=Delivered
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:38 AM [vite] http proxy error: /api/orders/user/1?status=Delivered
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:39 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:39 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:39 AM [vite] http proxy error: /api/products?search=&category_id=&brand=&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:39 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:39 AM [vite] http proxy error: /api/products?search=&category_id=&brand=&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:39 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:43 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:43 AM [vite] http proxy error: /api/products?search=&category_id=&brand=a&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:43 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:43 AM [vite] http proxy error: /api/products?search=&category_id=&brand=ap&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:43 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:43 AM [vite] http proxy error: /api/products?search=&category_id=&brand=app&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:44 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:44 AM [vite] http proxy error: /api/products?search=&category_id=&brand=appl&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:44 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:44 AM [vite] http proxy error: /api/products?search=&category_id=&brand=apple&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:44 AM [vite] http proxy error: /api/products?search=&category_id=&brand=applew&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:44 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/flash-deals
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/products/featured
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/products/top-selling?limit=8
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/flash-deals
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/products/featured
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:47 AM [vite] http proxy error: /api/products/top-selling?limit=8
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:49 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:49 AM [vite] http proxy error: /api/products?search=&category_id=&brand=&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:49 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:49 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:49 AM [vite] http proxy error: /api/products?search=&category_id=&brand=&min_price=&max_price=&min_rating=&page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:49 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/flash-deals
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/products/featured
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/products/top-selling?limit=8
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/cart/1
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/categories
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/flash-deals
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/products/featured
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:34:51 AM [vite] http proxy error: /api/products/top-selling?limit=8
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)

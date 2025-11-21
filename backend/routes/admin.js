@@ -412,5 +412,202 @@ router.get('/memberships/stats', async (req, res) => {
   }
 });
 
+// ============================================
+// REVIEW MANAGEMENT
+// ============================================
+
+// Get all reviews (Admin view)
+router.get('/reviews', async (req, res) => {
+  try {
+    const { status = 'Pending', limit = 50 } = req.query;
+    const limitNum = parseInt(limit);
+
+    const query = `
+      SELECT 
+        r.review_id,
+        r.product_id,
+        r.user_id,
+        r.rating,
+        r.review_title,
+        r.review_text,
+        r.review_status,
+        r.is_verified_purchase,
+        r.helpful_count,
+        r.unhelpful_count,
+        r.created_at,
+        u.first_name,
+        u.last_name,
+        u.email,
+        p.product_name,
+        p.brand
+      FROM reviews r
+      JOIN users u ON r.user_id = u.user_id
+      JOIN products p ON r.product_id = p.product_id
+      WHERE r.review_status = ?
+      ORDER BY r.created_at DESC
+      LIMIT ${limitNum}
+    `;
+
+    const [reviews] = await db.execute(query, [status]);
+    res.json(reviews);
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    res.status(500).json({ error: 'Failed to fetch reviews', message: error.message });
+  }
+});
+
+// Get pending reviews count
+router.get('/reviews/pending/count', async (req, res) => {
+  try {
+    const [result] = await db.execute(
+      'SELECT COUNT(*) as count FROM reviews WHERE review_status = ?',
+      ['Pending']
+    );
+    res.json({ pending_count: result[0].count });
+  } catch (error) {
+    console.error('Error fetching pending reviews count:', error);
+    res.status(500).json({ error: 'Failed to fetch count', message: error.message });
+  }
+});
+
+// Approve review
+router.put('/reviews/:reviewId/approve', async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+
+    // Get review details before updating
+    const [reviews] = await db.execute(
+      'SELECT product_id FROM reviews WHERE review_id = ?',
+      [reviewId]
+    );
+
+    if (reviews.length === 0) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    // Update review status to Approved
+    await db.execute(
+      'UPDATE reviews SET review_status = ?, updated_at = NOW() WHERE review_id = ?',
+      ['Approved', reviewId]
+    );
+
+    res.json({ 
+      message: 'Review approved successfully',
+      review_id: reviewId
+    });
+  } catch (error) {
+    console.error('Error approving review:', error);
+    res.status(500).json({ error: 'Failed to approve review', message: error.message });
+  }
+});
+
+// Reject review
+router.put('/reviews/:reviewId/reject', async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { reason } = req.body;
+
+    // Update review status to Rejected
+    await db.execute(
+      'UPDATE reviews SET review_status = ?, updated_at = NOW() WHERE review_id = ?',
+      ['Rejected', reviewId]
+    );
+
+    res.json({ 
+      message: 'Review rejected successfully',
+      review_id: reviewId,
+      reason: reason || 'No reason provided'
+    });
+  } catch (error) {
+    console.error('Error rejecting review:', error);
+    res.status(500).json({ error: 'Failed to reject review', message: error.message });
+  }
+});
+
+// Flag review (for inappropriate content)
+router.put('/reviews/:reviewId/flag', async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { reason } = req.body;
+
+    await db.execute(
+      'UPDATE reviews SET review_status = ?, updated_at = NOW() WHERE review_id = ?',
+      ['Flagged', reviewId]
+    );
+
+    res.json({ 
+      message: 'Review flagged successfully',
+      review_id: reviewId,
+      reason: reason || 'Flagged for review'
+    });
+  } catch (error) {
+    console.error('Error flagging review:', error);
+    res.status(500).json({ error: 'Failed to flag review', message: error.message });
+  }
+});
+
+// Delete review
+router.delete('/reviews/:reviewId', async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+
+    // Get product_id before deleting for potential rating recalculation
+    const [reviews] = await db.execute(
+      'SELECT product_id FROM reviews WHERE review_id = ?',
+      [reviewId]
+    );
+
+    if (reviews.length === 0) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    const productId = reviews[0].product_id;
+
+    // Delete the review
+    await db.execute('DELETE FROM reviews WHERE review_id = ?', [reviewId]);
+
+    // Recalculate product rating
+    const [avgRating] = await db.execute(
+      'SELECT COALESCE(AVG(rating), 0) as avg_rating, COUNT(*) as review_count FROM reviews WHERE product_id = ? AND review_status = ?',
+      [productId, 'Approved']
+    );
+
+    await db.execute(
+      'UPDATE products SET average_rating = ?, total_reviews = ? WHERE product_id = ?',
+      [avgRating[0].avg_rating, avgRating[0].review_count, productId]
+    );
+
+    res.json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    res.status(500).json({ error: 'Failed to delete review', message: error.message });
+  }
+});
+
+// Bulk approve reviews
+router.post('/reviews/bulk-approve', async (req, res) => {
+  try {
+    const { review_ids } = req.body;
+
+    if (!review_ids || !Array.isArray(review_ids) || review_ids.length === 0) {
+      return res.status(400).json({ error: 'review_ids array is required' });
+    }
+
+    const placeholders = review_ids.map(() => '?').join(',');
+    await db.execute(
+      `UPDATE reviews SET review_status = 'Approved', updated_at = NOW() WHERE review_id IN (${placeholders})`,
+      review_ids
+    );
+
+    res.json({ 
+      message: `${review_ids.length} reviews approved successfully`,
+      count: review_ids.length
+    });
+  } catch (error) {
+    console.error('Error bulk approving reviews:', error);
+    res.status(500).json({ error: 'Failed to bulk approve reviews', message: error.message });
+  }
+});
+
 export default router;
 

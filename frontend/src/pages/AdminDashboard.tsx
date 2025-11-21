@@ -3,23 +3,26 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, TrendingUp, Users, ShoppingCart, Truck, CheckCircle, Crown, Calendar } from "lucide-react";
+import { Package, TrendingUp, Users, ShoppingCart, Truck, CheckCircle, Crown, Calendar, Star, ThumbsUp } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<"orders" | "memberships">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "memberships" | "reviews">("orders");
   const [orders, setOrders] = useState<any[]>([]);
   const [memberships, setMemberships] = useState<any[]>([]);
   const [membershipStats, setMembershipStats] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [pendingReviewsCount, setPendingReviewsCount] = useState(0);
   const [stats, setStats] = useState<any>(null);
   const [filter, setFilter] = useState("Pending");
   const [membershipFilter, setMembershipFilter] = useState("Active");
+  const [reviewFilter, setReviewFilter] = useState("Pending");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
-  }, [filter, membershipFilter, activeTab]);
+  }, [filter, membershipFilter, reviewFilter, activeTab]);
 
   const fetchData = async () => {
     try {
@@ -31,7 +34,7 @@ const AdminDashboard = () => {
         ]);
         setOrders(ordersRes.data);
         setStats(statsRes.data);
-      } else {
+      } else if (activeTab === "memberships") {
         const [membershipsRes, statsRes, membershipStatsRes] = await Promise.all([
           axios.get(`/api/admin/memberships${membershipFilter ? `?status=${membershipFilter}` : ''}`),
           axios.get('/api/admin/dashboard/stats'),
@@ -40,6 +43,15 @@ const AdminDashboard = () => {
         setMemberships(membershipsRes.data);
         setStats(statsRes.data);
         setMembershipStats(membershipStatsRes.data);
+      } else if (activeTab === "reviews") {
+        const [reviewsRes, statsRes, countRes] = await Promise.all([
+          axios.get(`/api/admin/reviews?status=${reviewFilter}`),
+          axios.get('/api/admin/dashboard/stats'),
+          axios.get('/api/admin/reviews/pending/count')
+        ]);
+        setReviews(reviewsRes.data);
+        setStats(statsRes.data);
+        setPendingReviewsCount(countRes.data.pending_count);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -121,6 +133,50 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleApproveReview = async (reviewId: number) => {
+    try {
+      await axios.put(`/api/admin/reviews/${reviewId}/approve`);
+      toast.success("Review approved successfully");
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to approve review");
+    }
+  };
+
+  const handleRejectReview = async (reviewId: number) => {
+    const reason = prompt("Enter reason for rejection (optional):");
+    try {
+      await axios.put(`/api/admin/reviews/${reviewId}/reject`, { reason });
+      toast.success("Review rejected");
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to reject review");
+    }
+  };
+
+  const handleFlagReview = async (reviewId: number) => {
+    const reason = prompt("Enter reason for flagging:");
+    if (!reason) return;
+    try {
+      await axios.put(`/api/admin/reviews/${reviewId}/flag`, { reason });
+      toast.success("Review flagged for moderation");
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to flag review");
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!confirm("Are you sure you want to delete this review? This action cannot be undone.")) return;
+    try {
+      await axios.delete(`/api/admin/reviews/${reviewId}`);
+      toast.success("Review deleted");
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to delete review");
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Delivered": return "bg-green-100 text-green-700";
@@ -180,6 +236,17 @@ const AdminDashboard = () => {
           >
             <Crown className="w-4 h-4" />
             Membership Management
+          </Button>
+          <Button
+            variant={activeTab === "reviews" ? "default" : "outline"}
+            onClick={() => setActiveTab("reviews")}
+            className="flex items-center gap-2"
+          >
+            <Star className="w-4 h-4" />
+            Reviews Management
+            {pendingReviewsCount > 0 && (
+              <Badge className="ml-2 bg-red-500">{pendingReviewsCount}</Badge>
+            )}
           </Button>
         </div>
 
@@ -562,6 +629,190 @@ const AdminDashboard = () => {
               )}
             </div>
           </>
+        )}
+
+        {/* Reviews Section */}
+        {activeTab === "reviews" && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Reviews Management</h2>
+              <div className="flex gap-2">
+                {["Pending", "Approved", "Rejected", "Flagged"].map((status) => (
+                  <Button
+                    key={status}
+                    variant={reviewFilter === status ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setReviewFilter(status)}
+                  >
+                    {status}
+                    {status === "Pending" && pendingReviewsCount > 0 && (
+                      <Badge className="ml-2 bg-red-500 text-white">{pendingReviewsCount}</Badge>
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {reviews.length === 0 ? (
+              <p className="text-center text-gray-600 py-8">No reviews found</p>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review.review_id} className="border border-gray-200 rounded-lg p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-grow">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold">
+                            {review.first_name} {review.last_name}
+                          </h3>
+                          <Badge className={getStatusColor(review.review_status)}>
+                            {review.review_status}
+                          </Badge>
+                          {review.is_verified_purchase === 1 && (
+                            <Badge className="bg-green-100 text-green-700">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Verified Purchase
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600">{review.email}</p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Product: <span className="font-medium">{review.product_name}</span> by {review.brand}
+                        </p>
+                        
+                        {/* Star Rating */}
+                        <div className="flex items-center gap-1 my-3">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-5 h-5 ${
+                                i < review.rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "fill-gray-200 text-gray-200"
+                              }`}
+                            />
+                          ))}
+                          <span className="ml-2 text-lg font-bold">{review.rating}/5</span>
+                        </div>
+
+                        {/* Review Content */}
+                        {review.review_title && (
+                          <h4 className="font-semibold mt-3 mb-1">{review.review_title}</h4>
+                        )}
+                        {review.review_text && (
+                          <p className="text-gray-700">{review.review_text}</p>
+                        )}
+
+                        {/* Engagement Metrics */}
+                        <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <ThumbsUp className="w-4 h-4" />
+                            {review.helpful_count} helpful
+                          </span>
+                          <span>{review.unhelpful_count} not helpful</span>
+                          <span className="text-xs">
+                            Posted: {new Date(review.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 flex-wrap mt-4 pt-4 border-t">
+                      {review.review_status === 'Pending' && (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => handleApproveReview(review.review_id)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleRejectReview(review.review_id)}
+                            className="text-red-600 border-red-600"
+                          >
+                            Reject
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleFlagReview(review.review_id)}
+                            className="text-orange-600 border-orange-600"
+                          >
+                            Flag as Inappropriate
+                          </Button>
+                        </>
+                      )}
+
+                      {review.review_status === 'Approved' && (
+                        <>
+                          <span className="text-green-600 font-medium flex items-center gap-1">
+                            <CheckCircle className="w-4 h-4" />
+                            Approved & Published
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleFlagReview(review.review_id)}
+                            className="text-orange-600 border-orange-600"
+                          >
+                            Flag
+                          </Button>
+                        </>
+                      )}
+
+                      {review.review_status === 'Rejected' && (
+                        <>
+                          <span className="text-red-600 font-medium">Rejected</span>
+                          <Button
+                            size="sm"
+                            onClick={() => handleApproveReview(review.review_id)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            Approve Anyway
+                          </Button>
+                        </>
+                      )}
+
+                      {review.review_status === 'Flagged' && (
+                        <>
+                          <span className="text-orange-600 font-medium">Flagged for Moderation</span>
+                          <Button
+                            size="sm"
+                            onClick={() => handleApproveReview(review.review_id)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleRejectReview(review.review_id)}
+                            className="text-red-600 border-red-600"
+                          >
+                            Reject
+                          </Button>
+                        </>
+                      )}
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteReview(review.review_id)}
+                        className="text-red-600 border-red-600 ml-auto"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
       <Footer />
